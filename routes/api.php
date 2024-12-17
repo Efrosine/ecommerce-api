@@ -17,6 +17,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/orders', [OrderController::class, 'create']);
+    Route::get('/user', [AuthController::class, 'getAccount']);
+    Route::get('/user/request-bankaccount', [OrderController::class, 'requestBankAccount']);
+    Route::get('/user/orders', [OrderController::class, 'getUserOrders']);
     Route::post('/user/request-bind', [OrderController::class, 'requestBind']);
     Route::post('/user/request-payment', [OrderController::class, 'requestPayment']);
 });

@@ -36,7 +36,6 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            $user->tokens()->delete();
             $token = $user->createToken('auth-token')->plainTextToken;
 
             return response()->json(['token' => $token]);
@@ -50,6 +49,15 @@ class AuthController extends Controller
 
         $request->user()->tokens()->delete();
         return response()->json(['message' => 'Logged out successfully']);
+    }
+
+    /**
+     * Get user account details.
+     */
+    public function getAccount(Request $request)
+    {
+        $user = $request->user();
+        return response()->json($user);
     }
 
 }

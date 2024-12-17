@@ -56,6 +56,12 @@ class OrderController extends Controller
         return response()->json(['message' => 'Order created successfully'], 201);
     }
 
+    public function getUserOrders(Request $request)
+    {
+        $orders = $request->user()->orders()->with('orderDetails.product')->get();
+        return response()->json($orders);
+    }
+
     public function requestBind(Request $request)
     {
         $request->validate([
@@ -114,8 +120,31 @@ class OrderController extends Controller
         if ($response->failed()) {
             return response()->json(['message' => 'Failed to make payment ' . $responseData['message']], 500);
         }
+        $order->status = 'completed';
+        $order->save();
 
         return response()->json(['message' => $responseData['message']]);
+
+    }
+    public function requestBankAccount(Request $request)
+    {
+        $bankApiUrl = 'http://172.21.155.41:9011/api';
+        $bankToken = $request->header('BankToken');
+        if (!$bankToken) {
+            return response()->json(['message' => 'Unauthorized, Bank Token is required'], 401);
+        }
+        $response = Http::withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $bankToken,
+        ])->get(
+                $bankApiUrl . '/user/account',
+            );
+        $responseData = $response->json();
+        if ($response->failed()) {
+            return response()->json(['message' => 'Failed to get Account ' . $responseData['message']], 500);
+        }
+
+        return response()->json($responseData);
 
     }
 
